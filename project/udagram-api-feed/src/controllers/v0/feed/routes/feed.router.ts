@@ -26,12 +26,19 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   });
 }
 
+export function logMessage(m: String) {
+  console.log(new Date().toLocaleString() + `: ${m}`);
+}
+
 // Get all feed items
 router.get('/', async (req: Request, res: Response) => {
   const items = await FeedItem.findAndCountAll({order: [['id', 'DESC']]});
+  logMessage(`found ${items.count} items`);
   items.rows.map((item) => {
     if (item.url) {
+      logMessage(`get signed url for ${item.url}`);
       item.url = AWS.getGetSignedUrl(item.url);
+      logMessage(`signed url is ${item.url}`);
     }
   });
   res.send(items);
